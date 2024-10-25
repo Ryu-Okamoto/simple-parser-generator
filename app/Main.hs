@@ -8,7 +8,7 @@ main :: IO ()
 main = do 
     args <- getArgs
     (_, _) <- parseArgs args
-    print "sorry, yet developed"
+    putStrLn "sorry, yet developed"
 
 parseArgs :: [String] -> IO (FilePath, FilePath)
 parseArgs ["-h"] = printUsage >> exitSuccess
@@ -19,13 +19,14 @@ parseArgs (inputFile:outputDir:_) = return (inputFile, outputDir)
 parseArgs _ = printUsage >> exitFailure
 
 printUsage :: IO ()
-printUsage = print "\
-\usage: ./simple-parser-generator [options] input-ebnf output-dir \n\
-\  this program generates parser programs for grammer written in input-ebnf to output-dir \n\
+printUsage = putStrLn "\
+\Usage: simple-parser-generator [option] <input-ebnf> <output-dir> \n\
+\This program generates parser programs for grammer written in <input-ebnf> to <output-dir> \n\
 \\n\
-\    -h, --help       print this text \n\
-\    -v, --version    print this program's version \n\
+\[option]\n\
+\  -h, --help       print this text \n\
+\  -v, --version    print this program's version \n\
 \"
 
 printVersion :: IO ()
-printVersion = print "0.0.0"
+printVersion = putStrLn "0.0.0"

@@ -25,5 +25,7 @@ The definition of restricted-EBNF are described in *restricted*-EBNF as follows:
 
 ```
 $ stack build
-$ stack test
+$ stack test            // build and run tests
+$ stack run  -- <args>  // build and run app with args
+$ stack install         // build and locate app in local bin
 ```
