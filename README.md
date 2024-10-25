@@ -1,6 +1,6 @@
 # What is this?
 This is a parser generator for grammers written in *restricted*-EBNF.   
-The output is parser programs written in Haskell.
+The input is EBNF file, and the output is parser programs written in Haskell.
 
 Restricted-EBNF is EBNF **winthout** optional part, which more or less than one variables are in.   
 For example, in restricted-EBNF, `V ::= V1 [ V2 ]` and `V ::= t1 { V1 t2 } V2` are allowed,   
