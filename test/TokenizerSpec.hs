@@ -3,4 +3,5 @@ module TokenizerSpec ( spec ) where
 import Test.Hspec 
 
 spec :: Spec
-spec = undefined
+spec = describe "Tokenizer" $ do
+    it "has not developed yet" True
