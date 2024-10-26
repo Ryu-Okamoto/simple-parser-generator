@@ -15,9 +15,11 @@ The definition of restricted-EBNF are described in *restricted*-EBNF as follows:
   Element     ::=  Terminal | Variable | "{" ElementOpt "}" | "[" ElementOpt "]"
   ElementOpt  ::=  Terminal ElementOpt | Variable { Element }
   Variable    ::=  CAPS [ String ]
-  Terminal    ::=  "\"" String "\""
+  Terminal    ::=  "\"" ASCIIString "\""
   CAPS        ::=  "A" | "B" | ... | "Z"
-  String      ::=  ASCII { ASCII }
+  AlphaNum    ::=  "A" | "B" | ... | "Z" | "a" | ... | "z" | ... | "0" | ... | "9"
+  String      ::=  AlphaNum { AlphaNum }
+  ASCIISting  ::=  ASCII { ASCII } 
 ```  
 
 ## Usage
