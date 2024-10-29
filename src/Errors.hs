@@ -26,3 +26,11 @@ instance Error GenerateError where
 
 getMessage :: Error e => e -> String
 getMessage e = getName e ++ ": at line " ++ show (getLineNumber e)
+
+instance Show TokenizeError where
+    show :: TokenizeError -> String
+    show = getMessage
+    
+instance Show GenerateError where
+    show :: GenerateError -> String
+    show = getMessage

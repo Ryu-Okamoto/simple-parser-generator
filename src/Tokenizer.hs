@@ -3,37 +3,39 @@ module Tokenizer ( tokenize, Token (..) ) where
 import Errors ( TokenizeError (..) )
 import Data.Char ( isAlpha, isUpper, isAscii, isAlphaNum ) 
 
-data Token = Token { token :: String, lineNumber :: Int }
+data Token = Token { tkToken :: String, tkLineNumber :: Int } deriving ( Eq, Show )
 
 tokenize :: String -> Either TokenizeError [Token]
 tokenize ebnf = do
-    tokenss <- mapM tokenizeLine $ zip (lines ebnf) [1..]
-    return $ concat tokenss
+  tokensLines <- mapM tokenizeLine $ zip (lines ebnf) [1,2 ..]
+  return $ concat tokensLines
 
 data DFAState = 
   Init     |
-  Terminal |  -- reading a terminal
-  Variable |  -- reading a variable
+  Term     |  -- reading a terminal
+  Var      |  -- reading a variable
   MetaEq1  |  -- reading "::" of "::="
   MetaEq2  |  -- reading "::=" of "::=" 
+  OverRead |  -- over reading for identifying the end of a variable
   Accept   |
-  Fin      |  -- redundancy to identify the end of reading a variable
   Err    
+  deriving ( Show, Eq )
+
 
 tokenizeLine :: (String, Int) -> Either TokenizeError [Token]
 tokenizeLine ("", _) = return []
-tokenizeLine (line, number) = do
-  (firstToken, _, rest) <- extractFirstToken (line, Init, [])
-  restTokens <- tokenizeLine (rest, number)
-  return $ Token firstToken number : restTokens
+tokenizeLine (line, lineNumber) = do
+  (firstToken, _, rest) <- extractFirstToken ([], Init, line)
+  restTokens <- tokenizeLine (rest, lineNumber)
+  return $ Token firstToken lineNumber : restTokens
   where
     extractFirstToken :: (String, DFAState, String) -> Either TokenizeError (String, DFAState, String)
-    extractFirstToken (extracted, Init, ' ':t) = extractFirstToken (extracted, Init, t)
-    extractFirstToken (       _ , Init,    []) = Left $ TokenizeError number
-    extractFirstToken (extracted,  Fin,  rest) = return (init extracted, Init, last extracted : rest)
-    extractFirstToken (       _ ,  Err,     _) = Left $ TokenizeError number
-    extractFirstToken (extracted,    _,    []) = return (extracted, Init, [])
-    extractFirstToken (extracted,    q,   h:t) = extractFirstToken (extracted ++ [h], dfaTrans q h, t)
+    extractFirstToken (extracted,     Init, ' ':t) = extractFirstToken (extracted, Init, t)
+    extractFirstToken (extracted,   Accept,  rest) = return (extracted, Init, rest)
+    extractFirstToken (extracted, OverRead,  rest) = return (init extracted, Init, last extracted : rest)
+    extractFirstToken (        _,      Err,     _) = Left $ TokenizeError lineNumber
+    extractFirstToken (extracted,        _,    []) = return (extracted, Init, [])
+    extractFirstToken (extracted,        q,   h:t) = extractFirstToken (extracted ++ [h], dfaTrans q h, t)
 
 dfaTrans :: DFAState -> Char -> DFAState
 dfaTrans Init  '.' = Accept
@@ -43,19 +45,19 @@ dfaTrans Init  '}' = Accept
 dfaTrans Init  '[' = Accept
 dfaTrans Init  ']' = Accept
 dfaTrans Init  ':' = MetaEq1
-dfaTrans Init '\"' = Terminal
+dfaTrans Init '\"' = Term
 dfaTrans Init    a    
-  | isAlpha a && isUpper a = Variable
+  | isAlpha a && isUpper a = Var
   |              otherwise = Err
     
-dfaTrans Terminal '\"' = Accept
-dfaTrans Terminal a
-  | isAscii a = Terminal
+dfaTrans Term '\"' = Accept
+dfaTrans Term    a
+  | isAscii a = Term
   | otherwise = Err
 
-dfaTrans Variable a
-  | isAlphaNum a = Variable
-  |    otherwise = Accept
+dfaTrans Var a
+  | isAlphaNum a = Var
+  |    otherwise = OverRead
 
 dfaTrans MetaEq1 a
   | a == ':' = MetaEq2
@@ -64,6 +66,5 @@ dfaTrans MetaEq2 a
   |  a == '=' = Accept
   | otherwise = Err
 
-dfaTrans Accept _ = Fin
 dfaTrans _ _ = Err
   
