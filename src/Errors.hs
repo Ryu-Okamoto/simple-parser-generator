@@ -3,7 +3,9 @@
 
 module Errors where
 
+
 import Data.Data ( Data ( toConstr ), showConstr )
+
 
 class Error e where
     getName :: e -> String

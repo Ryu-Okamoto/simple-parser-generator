@@ -36,7 +36,6 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
-    , regex
   default-language: Haskell2010
 
 executable simple-parser-generator-exe
@@ -48,7 +47,6 @@ executable simple-parser-generator-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
-    , regex
     , simple-parser-generator
   default-language: Haskell2010
 
@@ -68,6 +66,5 @@ test-suite simple-parser-generator-test
     , base >=4.7 && <5
     , hspec
     , hspec-contrib
-    , regex
     , simple-parser-generator
   default-language: Haskell2010

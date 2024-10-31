@@ -1,0 +1,3 @@
+Expr ::= Term | Term "+" Expr | Term "-" Expr.
+Term ::= Fact | Fact "*" Term | Fact "/" Term.
+Fact ::= "num" | "(" Expr ")".

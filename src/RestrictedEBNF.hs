@@ -2,6 +2,7 @@
 
 module RestrictedEBNF where
 
+
 data     EBNF        =  EBNF EBNFL [EBNFL] 
 data     EBNFL       =  EBNFL Head Body [Body] 
 newtype  Head        =  Head Variable 

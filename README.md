@@ -8,19 +8,28 @@ but `V ::= [ V1 V2 ]` and `V ::= t1 { V1 t2 V2 }` are **NOT**, where `V`and `Vn`
 
 The definition of restricted-EBNF are described in *restricted*-EBNF as follows:
 ```ebnf
-  EBNF        ::=  EBNFL "." { EBNFL "." }
-  EBNFL       ::=  Head "::=" Body { "|" Body }
-  Head        ::=  Variable
-  Body        ::=  Element { "|" Element }
-  Element     ::=  Terminal | Variable | "{" ElementOpt "}" | "[" ElementOpt "]"
-  ElementOpt  ::=  Terminal ElementOpt | Variable { Element }
-  Variable    ::=  CAPS [ String ]
-  Terminal    ::=  "\"" ASCIIString "\""
-  CAPS        ::=  "A" | "B" | ... | "Z"
-  AlphaNum    ::=  "A" | "B" | ... | "Z" | "a" | ... | "z" | ... | "0" | ... | "9"
-  String      ::=  AlphaNum { AlphaNum }
-  ASCIISting  ::=  ASCII { ASCII } 
+  EBNF       ::=  EBNFL "." { EBNFL "." }.
+  EBNFL      ::=  Head "::=" Body { "|" Body }.
+  Head       ::=  Variable.
+  Body       ::=  Element { "|" Element }.
+  Element    ::=  Terminal | Variable | "{" ElementOpt "}" | "[" ElementOpt "]".
+  ElementOpt ::=  Terminal ElementOpt | Variable { Element }.
+  Variable   ::=  @CAPITAL [ AlphaNums ].
+  Terminal   ::=  "\"" String "\"".
+  AlphaNums  ::=  @ALPHANUM { @ALPHANUM }.
+  String     ::=  @PRINTABLE { @PRINTBLE }.
 ```  
+Variables stating with `@` are treated as macros.  
+All defined macros and their expansions are as follows:
+```ebnf
+  @CAPITAL   ::= "A" | "B" | ... | "Z".
+  @ALPHANUM  ::= @ALPHA | @NUMBER.
+  @ALPHA     ::= "A" | "B" | ... | "Z" | "a" | "b" | ... | "z".
+  @NUMBER    ::= "0" | "1" | ... | "9".
+  @PRINTABLE ::=
+     // one of the printable characters including spaces, 
+     // but double quotation MUST be written like "\""
+```
 
 ## Usage
 [Stack](https://docs.haskellstack.org/en/stable/) (a Haskell build tool) is required.  
