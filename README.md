@@ -7,7 +7,7 @@ For example, in restricted-EBNF, `V ::= V1 [ V2 ]` and `V ::= t1 { V1 t2 } V2` a
 but `V ::= [ V1 V2 ]` and `V ::= t1 { V1 t2 V2 }` are **NOT**, where `V`and `Vn` are variables and `tn` are terminals.
 
 The definition of restricted-EBNF are described in *restricted*-EBNF as follows:
-```ebnf
+```
   EBNF       ::=  EBNFL "." { EBNFL "." }.
   EBNFL      ::=  Head "::=" Body { "|" Body }.
   Head       ::=  Variable.
@@ -21,7 +21,7 @@ The definition of restricted-EBNF are described in *restricted*-EBNF as follows:
 ```  
 Variables stating with `@` are treated as macros.  
 All defined macros and their expansions are as follows:
-```ebnf
+```
   @CAPITAL   ::= "A" | "B" | ... | "Z".
   @ALPHANUM  ::= @ALPHA | @NUMBER.
   @ALPHA     ::= "A" | "B" | ... | "Z" | "a" | "b" | ... | "z".
