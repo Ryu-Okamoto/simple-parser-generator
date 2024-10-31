@@ -11,7 +11,7 @@ The definition of restricted-EBNF are described in *restricted*-EBNF as follows:
   EBNF       ::=  EBNFL "." { EBNFL "." }.
   EBNFL      ::=  Head "::=" Body { "|" Body }.
   Head       ::=  Variable.
-  Body       ::=  Element { "|" Element }.
+  Body       ::=  Element { Element }.
   Element    ::=  Terminal | Variable | "{" ElementOpt "}" | "[" ElementOpt "]".
   ElementOpt ::=  Terminal ElementOpt | Variable { Element }.
   Variable   ::=  @CAPITAL [ AlphaNums ].
