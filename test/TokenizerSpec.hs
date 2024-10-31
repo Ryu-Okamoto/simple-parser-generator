@@ -40,8 +40,8 @@ spec = do
     testNormal "A ::= @ALPHA | @ALPHA { A }." $ createTokensFromList ["A", "::=", "@ALPHA", "|", "@ALPHA", "{", "A", "}", "."]
     
   context "[normal] apply to example files" $ do
-    testNormalWithFile "test/data/expression/definition.ebnf" "test/data/expression/token.tsv"
-    testNormalWithFile "test/data/itself/definition.ebnf" "test/data/itself/token.tsv"
+    testNormalWithFile "test/example/expression/definition.ebnf" "test/example/expression/token.tsv"
+    testNormalWithFile "test/example/itself/definition.ebnf" "test/example/itself/token.tsv"
 
   context "[error] some errors in variables and terminals" $ do
     testError "A ::= WithUnderScore__"
