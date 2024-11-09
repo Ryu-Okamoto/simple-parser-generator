@@ -1,9 +1,9 @@
 # What is this?
-This is a parser generator for grammers written in *restricted*-EBNF.   
-The input is EBNF file, and the output is parser programs written in Haskell.
+This is a parser generator for grammers written in *restricted*-EBNF. 
+The input is an EBNF file, and the outputs are lexer and parser programs written in Haskell.
 
-Restricted-EBNF is EBNF **winthout** optional part, which more or less than one variables are in.   
-For example, in restricted-EBNF, `V ::= V1 [ V2 ]` and `V ::= t1 { V1 t2 } V2` are allowed,   
+Restricted-EBNF is EBNF **winthout** optional part (`{ }` or `[ ]`), which more or less than one variables are in. 
+For example, in restricted-EBNF, `V ::= V1 [ V2 ]` and `V ::= t1 { V1 t2 } V2` are allowed, 
 but `V ::= [ V1 V2 ]` and `V ::= t1 { V1 t2 V2 }` are **NOT**, where `V`and `Vn` are variables and `tn` are terminals.
 
 The definition of restricted-EBNF are described in *restricted*-EBNF as follows:
@@ -14,21 +14,26 @@ The definition of restricted-EBNF are described in *restricted*-EBNF as follows:
   Body       ::=  Element { Element }.
   Element    ::=  Terminal | Variable | "{" ElementOpt "}" | "[" ElementOpt "]".
   ElementOpt ::=  Terminal ElementOpt | Variable { Element }.
-  Variable   ::=  @CAPITAL [ AlphaNums ].
-  Terminal   ::=  "\"" String "\"".
-  AlphaNums  ::=  @ALPHANUM { @ALPHANUM }.
-  String     ::=  @PRINTABLE { @PRINTBLE }.
-```  
-Variables stating with `@` are treated as macros.  
+  Variable   ::=  @UPPERCASE [ ALPHANUMS ].
+  Terminal   ::=  "\"" STRING "\"".
+  ALPHANUMS  ::= @ALPHANUM { @ALPHANUM }.
+  STRING     ::= @PRINTABLE { @PRINTABLE }.
+```
+Variables stating with `@` are treated as macros.
+Macros are symbols used to only represent the set of characters or strings available lexically 
+and does **NOT** correspond to nodes in the abstract syntax tree (AST).
+
 All defined macros and their expansions are as follows:
 ```
-  @CAPITAL   ::= "A" | "B" | ... | "Z".
-  @ALPHANUM  ::= @ALPHA | @NUMBER.
-  @ALPHA     ::= "A" | "B" | ... | "Z" | "a" | "b" | ... | "z".
-  @NUMBER    ::= "0" | "1" | ... | "9".
+  @ALPHANUM  ::=  @ALPHA | @NUMBER.
+  @ALPHA     ::=  @UPPERCASE | @LOWERCASE.
+  @UPPERCASE ::=  "A" | "B" | ... | "Z".
+  @LOWERCASE ::=  "a" | "b" | ... | "z".
+  @NUMBER    ::=  "0" | "1" | ... | "9".
   @PRINTABLE ::=
-     // one of the printable characters including spaces, 
-     // but double quotation MUST be written like "\""
+     // a printable character including spaces (\n, \t or ' '), 
+     // but double quotation MUST be written as "\""
+     // and back slash as "\\"
 ```
 
 ## Usage

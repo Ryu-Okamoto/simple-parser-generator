@@ -1,6 +1,13 @@
-module ParserGeneratorSpec ( spec ) where
+module ParserGeneratorSpec 
+  ( spec ) 
+where
 
-import Test.Hspec ( describe, it, Spec ) 
+import Test.Hspec 
+  ( 
+      describe
+    , it
+    , Spec
+  ) 
 
 spec :: Spec
 spec = describe "ParserGenerator" $ do

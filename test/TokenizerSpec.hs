@@ -1,12 +1,28 @@
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-module TokenizerSpec ( spec ) where
+module TokenizerSpec 
+  ( spec )
+where
 
 
-import Test.Hspec ( it, Spec, shouldBe, SpecWith, context, runIO )
+import Test.Hspec 
+  ( 
+      it
+    , Spec
+    , shouldBe
+    , SpecWith
+    , context
+    , runIO
+    , expectationFailure
+  )
 
-import Tokenizer ( tokenize, Token (..) )
-import Errors (TokenizeError(TokenizeError))
+import Errors 
+  ( LexicalError (..) )
+import Tokenizer 
+  ( 
+      tokenize
+    , Token (..)
+  )
 
 
 spec :: Spec
@@ -32,7 +48,7 @@ spec = do
     testNormal "A ::= \"\\\"hi\\\"\"." $ createTokensFromList ["A", "::=", "\"\\\"hi\\\"\"", "."]
 
   context "[normal] macros" $ do
-    testNormal "A ::= @CAPITAL." $ createTokensFromList ["A", "::=", "@CAPITAL", "."]
+    testNormal "A ::= @UPPERCASE." $ createTokensFromList ["A", "::=", "@UPPERCASE", "."]
     testNormal "A ::= @ALPHANUM." $ createTokensFromList ["A", "::=", "@ALPHANUM", "."]
     testNormal "A ::= @ALPHA." $ createTokensFromList ["A", "::=", "@ALPHA", "."]
     testNormal "A ::= @NUMBER." $ createTokensFromList ["A", "::=", "@NUMBER", "."]
@@ -43,14 +59,14 @@ spec = do
     testNormalWithFile "test/example/expression/definition.ebnf" "test/example/expression/token.tsv"
     testNormalWithFile "test/example/itself/definition.ebnf" "test/example/itself/token.tsv"
 
-  context "[error] some errors in variables and terminals" $ do
-    testError "A ::= WithUnderScore__"
-    testError "A ::= \"not closed string"
-    testError "A ::= \"\" in terminal without escape\""
+  context "[abnormal] some errors in variables and terminals" $ do
+    testAbnormal "A ::= WithUnderScore__"
+    testAbnormal "A ::= \"not closed string"
+    testAbnormal "A ::= \"\" in terminal without escape\""
   
-  context "[error] use undefined macros" $ do
-    testError "A ::= @Number"
-    testError "A ::= @ORIGINAL"
+  context "[abnormal] use undefined macros" $ do
+    testAbnormal "A ::= @Number"
+    testAbnormal "A ::= @ORIGINAL"
 
   where
     createTokensFromList :: [String] -> [Token]
@@ -58,11 +74,10 @@ spec = do
 
 
 testNormal :: String -> [Token] -> SpecWith ()
-testNormal ebnf expected = it ebnf $ actual `shouldBe` expected
-  where
-    actual = case tokenize ebnf of
-      (Right tokens) -> tokens
-      _ -> []
+testNormal ebnf expected = it ebnf $
+  case tokenize ebnf of
+    (Left _) -> expectationFailure $ "failed to tokenize " ++ ebnf
+    (Right actual) -> actual `shouldBe` expected
 
 
 testNormalWithFile :: FilePath -> FilePath -> SpecWith ()
@@ -80,9 +95,8 @@ testNormalWithFile ebnfFile tokensFile = do
       return $ map (\(t:l:_) -> Token t (read l)) tokens
 
 
-testError :: String -> SpecWith ()
-testError ebnf = it ebnf $ actual `shouldBe` 1
-  where
-    actual = case tokenize ebnf of
-      (Left (TokenizeError lineNumber)) -> lineNumber
-      _ -> -1
+testAbnormal :: String -> SpecWith ()
+testAbnormal ebnf = it ebnf $
+  case tokenize ebnf of
+    (Left (LexicalError lineNumber)) -> lineNumber `shouldBe` 1
+    _ -> expectationFailure $ "failed to identify lexical error " ++ ebnf

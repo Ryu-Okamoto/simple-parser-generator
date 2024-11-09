@@ -1,13 +1,31 @@
 {-# LANGUAGE InstanceSigs #-}
-module Tokenizer ( tokenize, Token (..) ) where
+
+module Tokenizer 
+  ( 
+      tokenize
+    , Token (..)
+  ) 
+where
 
 
-import Errors ( TokenizeError (..) )
-import Data.Char ( isAlpha, isNumber, isUpper, isAlphaNum, isPrint ) 
+import Errors 
+  ( 
+      LexicalError
+    , throwLexicalError
+  )
+import Data.Char 
+  ( 
+      isAlpha
+    , isNumber
+    , isUpper
+    , isAlphaNum
+    , isPrint
+  ) 
 
 
-data Token = Token {
-    tkToken      :: String,
+data Token = Token 
+  {
+    tkToken :: String,
     tkLineNumber :: Int
   } 
   deriving ( Eq )
@@ -17,7 +35,7 @@ instance Show Token where
   show token = "(" ++ tkToken token ++ ", " ++ show (tkLineNumber token) ++ ")"
 
 
-tokenize :: String -> Either TokenizeError [Token]
+tokenize :: String -> Either LexicalError [Token]
 tokenize ebnf = do
   tokensLines <- mapM tokenizeLine $ zip (lines ebnf) [1,2 ..]
   return $ concat tokensLines
@@ -37,7 +55,7 @@ data DFAState =
   deriving ( Show, Eq )
 
 
-tokenizeLine :: (String, Int) -> Either TokenizeError [Token]
+tokenizeLine :: (String, Int) -> Either LexicalError [Token]
 tokenizeLine (  "",          _) = return []
 tokenizeLine (line, lineNumber) = do
   (firstToken, _, rest) <- extractFirstToken ([], Init, line)
@@ -45,18 +63,28 @@ tokenizeLine (line, lineNumber) = do
   restTokens <- tokenizeLine (rest, lineNumber)
   return $ Token firstToken lineNumber : restTokens
   where
-    extractFirstToken :: (String, DFAState, String) -> Either TokenizeError (String, DFAState, String)
+    extractFirstToken :: (String, DFAState, String) -> Either LexicalError (String, DFAState, String)
     extractFirstToken (extracted,     Init, ' ':t) = extractFirstToken (extracted, Init, t)
     extractFirstToken (extracted,   Accept,  rest) = return (extracted, Init, rest)
     extractFirstToken (extracted, OverRead,  rest) = return (init extracted, Init, last extracted : rest)
-    extractFirstToken (        _,      Err,     _) = Left $ TokenizeError lineNumber
-    extractFirstToken (        _,        _,    []) = Left $ TokenizeError lineNumber
+    extractFirstToken (        _,      Err,     _) = throwLexicalError lineNumber
+    extractFirstToken (        _,        _,    []) = throwLexicalError lineNumber
     extractFirstToken (extracted,        q,   h:t) = extractFirstToken (extracted ++ [h], dfaTrans q h, t)
 
-    validateMacro :: String -> Either TokenizeError ()
+    validateMacro :: String -> Either LexicalError ()
     validateMacro token@('@':_)
-      | token `elem` ["@CAPITAL", "@ALPHANUM", "@ALPHA", "@NUMBER", "@PRINTABLE"] = return ()
-      | otherwise = Left $ TokenizeError lineNumber
+      | token `elem` availableMacros = return ()
+      | otherwise = throwLexicalError lineNumber
+      where
+        availableMacros = 
+          [
+              "@ALPHANUM"
+            , "@ALPHA"
+            , "@UPPERCASE"
+            , "@LOWERCASE"
+            , "@NUMBER"
+            , "@PRINTABLE"
+          ]
     validateMacro _ = return ()
 
 

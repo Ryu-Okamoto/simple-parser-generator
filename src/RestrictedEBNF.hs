@@ -7,7 +7,7 @@ data     EBNF        =  EBNF EBNFL [EBNFL]
 data     EBNFL       =  EBNFL Head Body [Body] 
 newtype  Head        =  Head Variable 
 data     Body        =  Body Element [Element]
-data     Element     =  AtomV Variable | AtomT Terminal | Option ElementOpt | Repeat ElementOpt
+data     Element     =  AtomV Variable | AtomT Terminal | Repeat ElementOpt | Option ElementOpt
 data     ElementOpt  =  PrevV Terminal ElementOpt | PostV Variable [Terminal]
 newtype  Variable    =  Variable String
 newtype  Terminal    =  Terminal String
@@ -21,7 +21,10 @@ deriving instance Show ElementOpt
 deriving instance Show Variable
 deriving instance Show Terminal
 
+deriving instance Eq EBNF
+deriving instance Eq EBNFL
 deriving instance Eq Head
+deriving instance Eq Body
 deriving instance Eq Element
 deriving instance Eq ElementOpt
 deriving instance Eq Variable
