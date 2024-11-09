@@ -16,11 +16,11 @@ The definition of restricted-EBNF are described in *restricted*-EBNF as follows:
   ElementOpt ::=  Terminal ElementOpt | Variable { Element }.
   Variable   ::=  @UPPERCASE [ ALPHANUMS ].
   Terminal   ::=  "\"" STRING "\"".
-  ALPHANUMS  ::= @ALPHANUM { @ALPHANUM }.
-  STRING     ::= @PRINTABLE { @PRINTABLE }.
+  ALPHANUMS  ::=  @ALPHANUM { @ALPHANUM }.
+  STRING     ::=  @PRINTABLE { @PRINTABLE }.
 ```
 Variables stating with `@` are treated as macros.
-Macros are symbols used to only represent the set of characters or strings available lexically 
+Macros are symbols used to only represent the set of characters available lexically 
 and does **NOT** correspond to nodes in the abstract syntax tree (AST).
 
 All defined macros and their expansions are as follows:
