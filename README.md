@@ -1,3 +1,5 @@
+[![Haskell CI](https://github.com/Ryu-Okamoto/simple-parser-generator/actions/workflows/haskell.yml/badge.svg)](https://github.com/Ryu-Okamoto/simple-parser-generator/actions/workflows/haskell.yml)
+
 # What is this?
 This is a parser generator for grammers written in *restricted*-EBNF. 
 The input is an EBNF file, and the outputs are lexer and parser programs written in Haskell.
