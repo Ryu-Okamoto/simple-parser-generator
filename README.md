@@ -13,7 +13,7 @@ The definition of restricted-EBNF are described in *restricted*-EBNF as follows:
   Head       ::=  Variable.
   Body       ::=  Element { Element }.
   Element    ::=  Terminal | Variable | "{" ElementOpt "}" | "[" ElementOpt "]".
-  ElementOpt ::=  Terminal ElementOpt | Variable { Element }.
+  ElementOpt ::=  Terminal [ ElementOpt ] | Variable { Element }.
   Variable   ::=  @UPPERCASE [ ALPHANUMS ].
   Terminal   ::=  "\"" STRING "\"".
   ALPHANUMS  ::=  @ALPHANUM { @ALPHANUM }.

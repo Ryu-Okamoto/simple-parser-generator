@@ -1,14 +1,31 @@
 module Main (main) where
 
-import System.Environment ( getArgs )
-import System.Exit ( exitFailure, exitSuccess )
+import System.Environment 
+  ( getArgs )
+import System.Exit 
+  ( 
+      exitFailure
+    , exitSuccess 
+  )
+
+import Errors 
+import Tokenizer
+  ( tokenize )
+import Parser
+  ( parse )
 
 
 main :: IO ()
 main = do 
-    args <- getArgs
-    (_, _) <- parseArgs args
-    putStrLn "sorry, yet developed"
+  args <- getArgs
+  (inputFile, _) <- parseArgs args
+  inputText <- readFile inputFile
+  case tokenize inputText of
+    (Left e) -> putStrLn $ getMessage e
+    (Right tokens) -> 
+      case parse tokens of
+        (Left e) -> putStrLn $ getMessage e
+        (Right ebnf) -> putStrLn $ show ebnf
 
 parseArgs :: [String] -> IO (FilePath, FilePath)
 parseArgs ["-h"] = printUsage >> exitSuccess

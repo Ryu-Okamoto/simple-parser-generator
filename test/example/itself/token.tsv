@@ -45,7 +45,9 @@ ElementOpt	5
 ElementOpt	6
 ::=	6
 Terminal	6
+[	6
 ElementOpt	6
+]	6
 |	6
 Variable	6
 {	6

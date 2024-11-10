@@ -20,7 +20,8 @@ import Tokenizer
   ( Token (..) )
 import RestrictedEBNF
   ( 
-      Terminal (..)
+      Macro (..)
+    , Terminal (..)
     , Variable (..)
     , ElementOpt (..)
     , Element (..)
@@ -97,7 +98,7 @@ parseElement tokens@((Token token lineNumber):rest)
   | isUpper tokenHead = do
     (variable, rest2) <- parseVariable tokens
     return (AtomV variable, rest2)
-  | tokenHead == '"' = do
+  | tokenHead `elem` ['"', '@'] = do
     (terminal, rest2) <- parseTerminal tokens
     return (AtomT terminal, rest2)
   | token == "{" = do
@@ -132,10 +133,19 @@ parseElementList tokens@((Token token _):_)
 
 parseElementOpt :: [Token] -> Either SyntaxError (ElementOpt, [Token])
 parseElementOpt tokens@((Token token lineNumber):_)
-  | tokenHead == '"' = do
+  | tokenHead `elem` ['"', '@'] = do
     (terminal, rest) <- parseTerminal tokens
-    (elementOpt, rest2) <- parseElementOpt rest
-    return (PrevV terminal elementOpt, rest2)
+    case rest of
+      [] -> return (PrevV terminal Nothing, rest) 
+      _ | continued -> do
+          (elementOpt, rest2) <- parseElementOpt rest
+          return (PrevV terminal (Just elementOpt), rest2)
+        | otherwise -> return (PrevV terminal Nothing, rest)  
+        where
+          continued = tokenHead2 `elem` ['"', '@'] || isUpper tokenHead2
+          tokenHead2 = head token2
+          (Token token2 _):_ = rest
+          
   | isUpper tokenHead = do
     (variable, rest) <- parseVariable tokens
     (terminalList, rest2) <- parseTerminalList rest
@@ -148,8 +158,8 @@ parseElementOpt [] = throwSyntaxErrorByLack
 
 parseTerminalList :: [Token] -> Either SyntaxError ([Terminal], [Token])
 parseTerminalList [] = return ([], [])
-parseTerminalList tokens@(Token token lineNumber:_)
-  | tokenHead == '"' = do
+parseTerminalList tokens@(Token token _:_)
+  | tokenHead `elem` ['"', '@'] = do
     (terminal, rest) <- parseTerminal tokens
     (terminals, rest2) <- parseTerminalList rest
     return (terminal : terminals, rest2)
@@ -168,9 +178,24 @@ parseVariable [] = throwSyntaxErrorByLack
 
 
 parseTerminal :: [Token] -> Either SyntaxError (Terminal, [Token])
-parseTerminal ((Token token lineNumber):rest)
+parseTerminal tokens@(Token token lineNumber:rest)
   | tokenHead == '"' = return (Terminal token, rest)
+  | tokenHead == '@' = do
+    (macro, rest2) <- parseMacro tokens
+    return (Macro macro, rest2)
   | otherwise = throwSyntaxError lineNumber
   where
     tokenHead = head token
 parseTerminal [] = throwSyntaxErrorByLack
+
+
+parseMacro :: [Token] -> Either SyntaxError (Macro, [Token])
+parseMacro ((Token token lineNumber):rest)
+  | token == "@ALPHANUM" = return (ALPHANUM, rest)
+  | token == "@ALPHA" = return (ALPHA, rest)
+  | token == "@UPPERCASE" = return (UPPERCASE, rest)
+  | token == "@LOWERCASE" = return (LOWERCASE, rest)
+  | token == "@NUMBER" = return (NUMBER, rest)
+  | token == "@PRINTABLE" = return (PRINTABLE, rest)
+  | otherwise = throwSyntaxError lineNumber
+parseMacro [] = throwSyntaxErrorByLack

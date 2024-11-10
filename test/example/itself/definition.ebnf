@@ -3,7 +3,7 @@ EBNFL      ::=  Head "::=" Body { "|" Body }.
 Head       ::=  Variable.
 Body       ::=  Element { Element }.
 Element    ::=  Terminal | Variable | "{" ElementOpt "}" | "[" ElementOpt "]".
-ElementOpt ::=  Terminal ElementOpt | Variable { Element }.
+ElementOpt ::=  Terminal [ ElementOpt ] | Variable { Element }.
 Variable   ::=  @UPPERCASE [ ALPHANUMS ].
 Terminal   ::=  "\"" STRING "\"".
 ALPHANUMS  ::=  @ALPHANUM { @ALPHANUM }.

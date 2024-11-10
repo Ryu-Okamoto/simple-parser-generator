@@ -68,7 +68,8 @@ tokenizeLine (line, lineNumber) = do
     extractFirstToken (extracted,   Accept,  rest) = return (extracted, Init, rest)
     extractFirstToken (extracted, OverRead,  rest) = return (init extracted, Init, last extracted : rest)
     extractFirstToken (        _,      Err,     _) = throwLexicalError lineNumber
-    extractFirstToken (        _,        _,    []) = throwLexicalError lineNumber
+    extractFirstToken (        _,     Term,    []) = throwLexicalError lineNumber
+    extractFirstToken (extracted,        _,    []) = return (extracted, Init, [])
     extractFirstToken (extracted,        q,   h:t) = extractFirstToken (extracted ++ [h], dfaTrans q h, t)
 
     validateMacro :: String -> Either LexicalError ()
@@ -119,7 +120,7 @@ dfaTrans MetaEq2 a
   | otherwise = Err
 
 dfaTrans Macro a
-  | isAlpha a = Macro
+  | isAlpha a && isUpper a = Macro
   | isNumber a = Macro
   | otherwise = OverRead
 
